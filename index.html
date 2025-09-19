@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>César Sasia — Game Developer (C++/Unreal/Unity)</title>
+  <meta name="description" content="Game Developer enfocado en gameplay, ECS y motores propios (C++). Proyectos: PizzaMortis, VectonautaEngine, HeliosEngine, EngineUtilities, Cestino (UE5)." />
+  <meta name="keywords" content="game developer, C++, Unreal Engine 5, Unity, ECS, SFML, ImGui, portfolio, HeliosEngine, EngineUtilities, Blender" />
+  <link rel="icon" href="Assets/favicon.png" />
+
+  <style>
+    :root{
+      --bg:#0f1116; --panel:#151823; --muted:#a7b0c0; --text:#e7ecf3;
+      --brand:#6ee7ff; --brand2:#a78bfa; --border:#23283a; --card:#0f131c;
+      --radius:16px; --gap:18px; --shadow:0 12px 30px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 700px at 10% -10%,#1a2030 0%,#0f1116 55%) fixed;color:var(--text);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline;opacity:.95}
+
+    .wrap{max-width:1100px;margin-inline:auto;padding:24px}
+    header.nav{position:sticky;top:0;z-index:50;background:rgba(15,17,22,.7);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .nav .bar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+    .brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2))}
+    .nav a.btn{padding:8px 12px;border:1px solid var(--border);border-radius:10px}
+    .nav a.btn:hover{background:#1b2030}
+
+    .hero{display:grid;grid-template-columns:1fr;gap:24px;padding:30px 0}
+    @media(min-width:900px){.hero{grid-template-columns:1fr 1.2fr;align-items:center}}
+    .card{background:linear-gradient(180deg,#141826,#0f131c);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .p{padding:22px}
+    .tag{display:inline-block;padding:4px 8px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:.85rem}
+    .h1{font-size:clamp(28px,4vw,42px);line-height:1.15;margin:8px 0 2px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:var(--gap)}
+    .grid.skills{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:6px 10px;background:#0b0e14;border:1px solid var(--border);border-radius:10px}
+    .title{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .title .line{height:1px;background:var(--border);flex:1}
+    .actions{display:flex;flex-wrap:wrap;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#101521;color:var(--text);font-weight:700}
+    .btn.primary{background:linear-gradient(135deg,#0ea5e9,#7c3aed);border-color:#1a2b44}
+    footer{margin:40px 0 24px;color:#8ea0bd;text-align:center;font-size:.9rem}
+    .photo{border-radius:18px;overflow:hidden;border:1px solid var(--border);background:#0b0e14;display:grid;place-items:center}
+    .photo img{width:100%;height:100%;object-fit:cover}
+
+    /* Projects */
+    .projects{display:grid;gap:var(--gap)}
+    @media(min-width:900px){.projects{grid-template-columns:1fr 1fr}}
+    .proj{display:grid;gap:10px}
+    .thumb{aspect-ratio:16/9;background:#0b0e14;border:1px solid var(--border);border-radius:12px;display:grid;place-items:center;color:#667;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+
+    /* -------- Slider genérico (estable) -------- */
+    .slider{
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b0e14;
+      aspect-ratio: 16 / 9;
+    }
+    .slides{
+      display: flex;
+      transition: transform .35s ease;
+      will-change: transform;
+    }
+    /* cada slide = 100% del ancho */
+    .slides > *{
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    .slides img,
+    .slides video{
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    /* Controles por encima de la caption */
+    .snav{
+      position: absolute; inset: auto 8px 8px auto;
+      display: flex; gap: 6px; z-index: 3;
+    }
+    .sbtn{
+      padding: 6px 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: #101521; color: #cfe6ff;
+      cursor: pointer;
+    }
+    /* La caption no roba clics */
+    .caption{
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(transparent,rgba(0,0,0,.55));
+      padding: 8px 10px; font-size: .9rem;
+      pointer-events: none; z-index: 2;
+    }
+    /* ------------------------------------------- */
+
+    .mono{font-family:var(--mono);color:#9fb4d3}
+    @media print{header.nav,.actions.sticky{display:none !important} body{background:#fff} .card{box-shadow:none}}
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav">
+    <div class="wrap bar">
+      <div class="brand"><span class="dot"></span><span>César Sasia</span></div>
+      <nav>
+        <a class="btn" href="#inicio">Inicio</a>
+        <a class="btn" href="#habilidades">Habilidades</a>
+        <a class="btn" href="#proyectos">Proyectos</a>
+        <a class="btn" href="#experiencia">Experiencia</a>
+        <a class="btn" href="#educacion">Educación</a>
+        <a class="btn" href="#contacto">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <main id="inicio" class="wrap hero">
+    <div class="photo card">
+      <img src="Assets/cesar.jpg" alt="César Manuel Sasia Zayas">
+    </div>
+    <section class="card p">
+      <span class="tag">Game Developer</span>
+      <h1 class="h1">César Manuel Sasia Zayas</h1>
+      <p class="muted">México · España · USA (remoto)</p>
+      <p>Dev de videojuegos enfocado en <b>gameplay</b>, <b>ECS</b> y <b>motores propios</b> (C++).
+         Experiencia con <b>Unreal 5</b>, <b>Unity</b>, <b>SFML</b> e <b>ImGui</b>.
+         Me apasiona optimizar, crear herramientas y diseñar IA de NPCs.</p>
+      <div class="actions">
+        <a class="btn primary" href="#" onclick="window.print()">Descargar PDF</a>
+        <a class="btn" href="mailto:cesar.sasia.dev@proton.me">cesar.sasia.dev@proton.me</a>
+        <span class="btn mono">Tel. 4421234567</span>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <a class="btn" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn" href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn" href="https://itch.io/" target="_blank" rel="noopener">itch.io</a>
+        <a class="btn" href="https://store.steampowered.com/" target="_blank" rel="noopener">Steam</a>
+        <a class="btn" href="https://youtube.com/" target="_blank" rel="noopener">YouTube</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== SKILLS ===== -->
+  <section id="habilidades" class="wrap">
+    <div class="title"><h2>Habilidades</h2><div class="line"></div></div>
+    <div class="grid skills">
+      <div class="card p">
+        <b>Lenguajes / Engines</b>
+        <div class="chips" style="margin-top:8px">
+          <span class="chip">C++ (avanzado)</span><span class="chip">C# (intermedio)</span>
+          <span class="chip">JS (intermedio)</span><span class="chip">Python (básico)</span>
+          <span class="chip">Unreal 5</span><span class="chip">Unity</span>
+          <span class="chip">SFML</span><span class="chip">ImGui</span><span class="chip">MySQL</span>
+        </div>
+      </div>
+      <div class="card p">
+        <b>Áreas</b>
+        <ul class="muted">
+          <li>Gameplay programming, UI/HUD, input.</li>
+          <li>ECS, arquitectura, herramientas internas.</li>
+          <li>IA básica (FSM/Steering), path tools.</li>
+          <li>Optimización 2D, profiling, debug.</li>
+        </ul>
+      </div>
+      <div class="card p">
+        <b>Soft skills</b>
+        <ul class="muted">
+          <li>Comunicación · Trabajo en equipo · Mentoría</li>
+          <li>Resiliencia y aprendizaje continuo</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Blender -->
+    <div class="section">
+      <div class="title"><h3>Modelado 3D (Blender) — Nivel básico</h3><div class="line"></div></div>
+      <div class="card p">
+        <div class="slider" data-slider>
+          <div class="slides">
+            <img src="Assets/moto_blender.png" alt="Render moto (Blender)">
+            <img src="Assets/blender_scene.png" alt="Escena de trabajo (Blender)">
+          </div>
+          <div class="snav">
+            <button type="button" class="sbtn" data-prev>◀</button>
+            <button type="button" class="sbtn" data-next>▶</button>
+          </div>
+          <div class="caption">Renders y workspace de Blender (básico).</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PROJECTS ===== -->
+  <section id="proyectos" class="wrap">
+    <div class="title"><h2>Proyectos destacados</h2><div class="line"></div></div>
+    <div class="projects">
+
+      <!-- VectonautaEngine -->
+      <article class="card p proj">
+        <div class="thumb"><img src="Assets/vectonauta.png" alt="VectonautaEngine"></div>
+        <h3>VectonautaEngine · ECS + Herramientas</h3>
+        <p class="muted">Motor 2D propio con ECS, GUI de debug (ImGui), path tools y HUD.</p>
+        <ul class="muted">
+          <li>Aporte: arquitectura ECS, GUI, herramientas de trazado, HUD.</li>
+          <li>Stack: C++20 · SFML · ImGui.</li>
+        </ul>
+      </article>
+
+      <!-- PizzaMortis -->
+      <article class="card p proj">
+        <div class="thumb"><img src="Assets/phaser_screen.jpg" alt="PizzaMortis/Phaser"></div>
+        <h3>PizzaMortis · Game Designer/Programmer</h3>
+        <p class="muted">Prototipo de horror/pizzería con pedidos “especiales”, timers y HUD.</p>
+        <ul class="muted">
+          <li>Stack: Unity 2D / JS-Phaser (según prototipo).</li>
+          <li>Aporte: lógica de pedidos, UI/UX, estados.</li>
+        </ul>
+      </article>
+
+      <!-- HeliosEngine (imagen + link .git) -->
+      <article class="card p proj">
+        <div class="thumb"><img src="Assets/Helios_Engine.png" alt="HeliosEngine"></div>
+        <h3>HeliosEngine · Experimentos de Motor</h3>
+        <p class="muted">Exploración de arquitectura para motor propio con utilidades modulares.</p>
+        <ul class="muted">
+          <li>Stack: C++ · utilidades de engine.</li>
+          <li>Repo: <a href="https://github.com/CsZBactery/HeliosEngine.git" target="_blank" rel="noopener">CsZBactery/HeliosEngine.git</a></li>
+        </ul>
+      </article>
+
+      <!-- EngineUtilities (link .git) -->
+      <article class="card p proj">
+        <div class="thumb"><div style="padding:20px;text-align:center;color:#7aa">EngineUtilities</div></div>
+        <h3>EngineUtilities · Tooling & Helpers</h3>
+        <p class="muted">Colección de utilidades y helpers para motores/engines en C++.</p>
+        <ul class="muted">
+          <li>Stack: C++ · patrones · I/O · utils matemáticas.</li>
+          <li>Repo: <a href="https://github.com/CsZBactery/EngineUtilities.git" target="_blank" rel="noopener">CsZBactery/EngineUtilities.git</a></li>
+        </ul>
+      </article>
+
+      <!-- Cestino (UE5) con videos -->
+      <article class="card p proj">
+        <div class="slider" data-slider>
+          <div class="slides">
+            <img src="Assets/cestino_concept.jpg" alt="Cestino concept">
+            <video src="Videos/cestino_start.mp4" controls preload="metadata"
+                   playsinline poster="Videos/cestino_start.mp4"></video>
+            <video src="Videos/cestino_final.mp4" controls preload="metadata"
+                   playsinline poster="Videos/cestino_concept.jpg"></video>
+          </div>
+          <div class="snav">
+            <button type="button" class="sbtn" data-prev>◀</button>
+            <button type="button" class="sbtn" data-next>▶</button>
+          </div>
+          <div class="caption">Cestino — De idea loca a prototipo en UE5.</div>
+        </div>
+        <h3>CESTINO · Third-person Platformer (UE 5)</h3>
+        <p class="muted">Plataformas 3D con humor negro en un París grotesco; mecánicas de
+           movimiento/combate, enemigos “limpiadores” y zonas de contaminación final.</p>
+        <ul class="muted">
+          <li>Rol: Idea original + Gameplay prototyping + Balance.</li>
+          <li>Stack: Unreal Engine 5 · Blueprints.</li>
+        </ul>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== EXPERIENCE ===== -->
+  <section id="experiencia" class="wrap">
+    <div class="title"><h2>Experiencia</h2><div class="line"></div></div>
+    <article class="card p">
+      <h3>Freelance / Indie Game Dev · 2023–Actual</h3>
+      <ul class="muted">
+        <li>Prototipos rápidos en Unity/Unreal para loops de gameplay.</li>
+        <li>Implementación de ECS en C++ con herramientas de debug y profiling.</li>
+        <li>Optimización de escenas 2D (mejoras de frame time y draw calls).</li>
+        <li>Colaboración con equipos pequeños (Git, flujos ágiles ligeros).</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- ===== EDUCATION ===== -->
+  <section id="educacion" class="wrap">
+    <div class="title"><h2>Educación · Certificaciones</h2><div class="line"></div></div>
+    <div class="grid">
+      <div class="card p">
+        <h3>Ingeniería en Desarrollo de Videojuegos</h3>
+        <p class="muted">Universidad Cuauhtémoc Querétaro — Ene 2024 · Ene 2027</p>
+      </div>
+      <div class="card p">
+        <h3>Certificación</h3>
+        <p class="muted">Fundamentos de ChatGPT — 8 h, 2 módulos, 30/jul/2025</p>
+        <div class="actions"><a class="btn" href="Assets/CV-CesarSasia.pdf" target="_blank" rel="noopener">Ver certificado / CV</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section id="contacto" class="wrap">
+    <div class="title"><h2>Contacto</h2><div class="line"></div></div>
+    <div class="card p">
+      <p><b>Email:</b> <a href="mailto:cesar.sasia.dev@proton.me">cesar.sasia.dev@proton.me</a></p>
+      <p><b>Teléfono:</b> 4421234567</p>
+      <p><b>Ubicación:</b> México · España · USA (remoto)</p>
+      <div class="actions">
+        <a class="btn" href="mailto:cesar.sasia.dev@proton.me">Escríbeme</a>
+        <a class="btn" href="#" onclick="window.print()">Descargar en PDF</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap">© <span id="y"></span> César Manuel Sasia Zayas — Hecho con C++ en el corazón y CSS en modo legacy 😎</footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // ===== Slider genérico (simple y robusto) =====
+    document.querySelectorAll('[data-slider]').forEach(initSlider);
+    function initSlider($slider){
+      const $track = $slider.querySelector('.slides');
+      const items  = Array.from($track.children);
+      let i = 0;
+
+      const update = () => { $track.style.transform = `translateX(${-i * 100}%)`; };
+
+      const $prev = $slider.querySelector('[data-prev]');
+      const $next = $slider.querySelector('[data-next]');
+
+      $prev?.addEventListener('click', () => { i = (i - 1 + items.length) % items.length; update(); });
+      $next?.addEventListener('click', () => { i = (i + 1) % items.length; update(); });
+
+      update();
+    }
+  </script>
+</body>
+</html>
